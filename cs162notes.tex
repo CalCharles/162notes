@@ -1,0 +1,480 @@
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+\def \tab {\hspace{.7cm}}
+\def \vectors {$\{u_{1}...u_{m}\}$}
+\def \REN {$\Re^{n}$}
+\def \WO {\omega_{0}}
+\def \IFF {\int\limits_{-\infty}^{\infty}}
+\def \IZF {\int\limits_{0}^{\infty}}
+\def \SFF {\sum\limits_{i=-\infty}^{\infty}}
+\def \SZF {\sum\limits_{n=0}^{\infty}}
+\def \JO {j\omega}
+\def \EJO {e^{j\omega}}
+\def \ENJO {e^{-j\omega}}
+\def \SIN {\sum\limits_{i=1}^n}
+
+\title{	
+\normalfont \normalsize 
+\textsc{Operating Systems} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge CS 162 Notes \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Caleb Chuck} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+
+\maketitle % Print the title
+\section{Overview Of Topics}
+\begin{enumerate}
+	\item OS Concepts
+    \begin{enumerate}
+    	\item Process
+        \item I/O
+        \item Networks
+        \item VM
+    \end{enumerate}
+    \item Concurrency
+    \begin{enumerate}
+    	\item Threads
+        \item Scheduling
+        \item Locks
+        \item Deadlocks
+        \item Scalability
+        \item Fairness
+    \end{enumerate}
+    \item Address Spaces
+    \begin{enumerate}
+    	\item Virtual Memory
+        \item Address Translation
+        \item Protection
+        \item Sharing
+    \end{enumerate}
+    \item Distributed Systems
+    \begin{enumerate}
+    	\item Protocols
+        \item N-Tiers
+        \item RPC
+        \item NFS
+        \item DHT
+        \item Consistency
+        \item Scalability
+        \item Multicast
+    \end{enumerate}
+    \item Reliability Security
+    \item Cloud infrastructure
+\end{enumerate}
+
+\section{Lecture Notes}
+\subsection{Lecture 1}
+What is an Operating System? \\
+Operating systems allow the massive connectivity of hardware devices to be useful. \\
+In fact even something like a search query passes through many protocols, devices and systems.
+The answer to what an operating system is is quite indeterminate. It amy be described as a special layer of software which provides application software access to hardware resources\\
+The Hardware schematic: Software $\rightarrow$ OS Hardware Virtualization (Threads, Address Spaces, Processes, Files, Windows, Sockets) $\rightarrow$ Hardware-instruction set( Processor $\leftrightarrow$ Memory ) $\overrightarrow{ctrlr}$(Protection Boundary) Storage, Networks, Displays, Inputs. \\
+Process: A running instance of a program (notably, a program in memory). \\
+Context Switch: The illusion of a process and an operating system at once. \\
+Scheduling: Of the many threads, we attempt to decide which ones should run.\\
+Drivers: A clean interface for unique hardware devices. \\
+Technological trends: Moore's law: The increasing number of transistors at 2x/1.6 years.\\
+Joy's law of performance: the performance of a CPU has been doubling every 1.6 years (similarly to Moore's law). \\
+Other trends which are notable are: Increasing Power density (approaching that of a rocket nozzle), increasing storage capacity (for hard drives, and similarly for flash memory), increasing Network capacity over time, both for servers and for machine connections, and increasing number of internet hosts over time and internet users.\\
+The roles of an operating system: Referee, Illusionist, glue. The challenges of an operating system: Complexity, application generic-ism.
+
+\subsection{Lecture 2}
+Processes topics:\\
+History of Operating system design: At first the hardware was the most expensive so we tried to use 100 percent of the hardware, multiplexing on people's jobs, then eventually became somewhat cheaper than humans which gave rise to workstations and GUIS, until now it is extremely cheap, with ubiquitous devices and networking.\\
+Because of this long history, Operating systems are built on top of the last one, which means that there are many legacy features based on how people wanted things.
+Life cycle of a program: starts in storage, then it loads into memory, gives it a stack and a heap, gives it control, eventually gets returned.\\
+Four topics of Operating Systems: 
+\begin{itemize}
+	\item Thread: a single execution context
+    \item Address Space: virtualized and distinct memory
+    \item Process: An instance of a running program
+    \item Dual mode of operation: The two modes, where only the system can access certain resources, and this is traded with a user access, which is controlled by translation.
+\end{itemize}
+Execution sequence: Instructions are read from memory using the PC, where the next instruction is moved by the Processor. The instruction is decoded, and then put through the registers and ALU to get results. In a simplified description, we fetch, decode, execute, write and get next.\\
+Thread: single unique execution context: PC, Registers, execution flags, stack.\\
+A thread is executing when it is in the registers. \\
+Address Space: the set of accessible addresses (the cpu in a thread is allowed to access, though they may not be used) and the state associated with them. Reading or writing an address can result in many things, including nothing, I/O or exceptions. \\
+Important segments: Code, static, stack, where the flow of these segments is from 0x000 to 0xFFF. \\
+Multiprogramming is the case of having multiple threads of control \\
+In order to create the illusion of multiple processors, we can multiplex in time (split the total cpu time over each of the virtual cpus). Each virtual cpu then has the program context object: PC, SP, registers\\
+We trigger a switch between virtual CPUs based on a timer (or voluntary, I/O or some other metric).\\
+In order to have concurrency, we must gie the illusion of all resources and only one CPU, DRAM and I/O devices.\\
+We do this coordination using Virutal Machines. Sometimes, we allow all thre threads to share, but typically, we keep our threads in processes:\\
+Process: execution environment with Restricted rights. This is a shared address space with One or more threads, which protects other processes and the OS from our processes, while still allowing sharing.\\
+Operating systems ensure Reliability, security, privacy and fairness between user programs, which it does by controlling the addresses accessible by the user.\\
+Hardware provides two modes: kernel and user mode, which means including a state bit. In this, certain operations are only allowed in the kernel mode. \\
+Transfer into the kernel mode is done by Syscalls, Interrupts, exceptions and exits from the user mode. Each of these is controlled, especially syscalls, which only allow a single particular action. The kernel can give control to the user through exec, rtn and rfi commands.\\
+Some Translation protection methods: \\
+Base and Bound: Here we have a base value to add to each line of code, and a bound which our code cannot exceed. This is not so good because we have to relocate every time we load a new program into memory.\\
+Address space translate: We have a virtual address and a physical address, where the processor sends virtual addresses in to a translator, which searches up physical addresses in memory. This allows all of our programs to have 0x000 on top of fixing the loader problem.\\
+Using the translation table, we have the operating system find our base and bound values first, before going through our program.
+
+\subsection{Lecture 3}
+Virtual CPU: virtual piece of hardware from which the software runs. \\
+In order to give the illusion of multiple processors, and thus run multiple different programs at once, we can multiplex the CUP over time and then assign a different amount of time at differing orders to get the value that is wanted. \\
+Processes can be threaded as well, so that they can run multiple different things at once. Threads encapsulate concurrency, while address spaces encapsulate protection. \\
+When running multiple programs, we want to have a basic mechanism to switch between user and kernel methods so that the kernel can switch, as well as protection. \\
+The Process Control Block: Each process is defined by its PCB, which contains information about the status of the program, the register state, PID, execution time, memory space and translation, kept as a data structure. \\
+Scheduler: This is the mechanism for deciding which processes and threads receive the CPU, where we try to optimize over various things. \\
+Hyperthreading (simultaneous multithreading): This is where the hardware actually interlaces the run states of multiple programs to maximize efficiency, since programs may have various areas where they must be idle, cannot compute in parallel or some other thing. The order of the program running is called superscalar architecture\\
+In order to protect memory, we can restrict the amount of memory addresses used in base and bound. Then when we switch processes, we store the base, bound, PC and register values, as well as having a system mode bit\\
+The storage of the PC bit is important, instead of one regist, we have two, one for storing interrupt vectors should the kernel decide to break out of a program, and the other to store the PC when the normal PC is interrupted by the interrupt vector. \\
+Simple base and bound is ineffectual with sharing and tends to be fragmented, and each time we load there is a different place in memory, so we also need a dynamic loader. \\
+Alternatively, we can use address mapping to achieve our ends. We do this by having virtual address space map through a translation table to pages in physical address space, which allows us to share by simply having both page tables point to the same piece of physical memory. \\
+Kernel Mode transfer: we can do this through Syscalls, which are very controlled pathways, Interrupts, which are asynchronous event triggers, and traps or exceptions, which are internal synchronous events.\\
+In order to implement safe transfers in and out of kernel mode, we have a seperate kernel stack, where we can control the user process state and set it aside. \\
+We give the kernel a stack so that the operating system has an interrrupt stack and a user stack, such that we can store the information about the CPU state, the I/O driver, or the syscall handler when we switch to kernel mode, and this information cannot be tampered with by the user. \\
+The Kernel System call handier allows us to vector through well defined syscall entry points. These can locate, copy and validate arguments, then copy the results back to user memory. \\
+The important features of hardware support are: interrupt processing invisible to the user, the kernel control interrupts (ignore or not), and has multiple levels of interrupts. \\
+The interrupt controller: interrupt lines from devices are sent to the controller, which may mask, prioritize, enact a software interrupt or choose only particular interrupt identities. \\ 
+Some interrupts called NMI (non-maskable interrupts) cannot be disabled\\
+Safe transfer of interrupts: Interrupt vector (limited entry into the kernel), Kernel interrupt stack (the stack of information for each process), interrupt masking, atomic transfer of control, and transparent restartable execution (which means that the user does not know that the kernel took control. \\
+Processes creating processes: we can use Fork() to create a new process from a parent. For ks a function which returns an integer, 0 if it is the child process, the child's PID if we are a parent, and a value less than zero if there is an error. \\
+Exec is a system call to change the current program bring run. Wait waits for a process to finish, and signal sends a system call to notify another process. \\
+The shell is a job control system, which allows the user to create and manage a set of programs. \\
+The user Mode is such that there are applications and standard libraries, which can call SYSCALLS, which pass down to the kernel, which then might control the file system, IO, scheduling, paging, virtual memory, drivers, and signals. This passes to the hardware, where we have different controllers for different parts. \\
+Here are the key design concepts of I/O: 
+\begin{enumerate}
+	\item Uniformity: we have the same file operations, I/O, inter-process communication, read/write, close
+    \item Open before use means that we have a chance to control and set up data structures
+    \item Byte oriented: all things are addressed in bytes
+    \item Kernel buffered reads: reads block a process, and streaming and blocked devices look the sames
+    \item Kernel buffered writes: completing a transfer is not inside the application, so we can continue
+    \item Explicit close
+\end{enumerate}
+Number of the day: about 1 million operations equivalent to one access of the disc
+\subsection{Lecture 4}
+os Runtime library: A library which wraps most of the syscalls to protect the user from damaging itself. \\
+The I/O and storage layers are separated into: streams, handles, registers, descriptors, commands, and then physical disc. \\
+The file system abstraction: We have files, which are named collections of data, complete with data and metadata. Then we have Directories, which are folders and allow a hierarchical naming of files and directories. \\
+When we have a c file, we operate on streams, which means afterwards we need to flush the stream out. The streaming operator in c is fopen, and flush is fflush. Additionally, fputc gets a character, and fputs gets a string from a file. printf and fscanf are ways of sending formatted outputs. \\
+In order to connect files, we use relative and absolute pathing. \\
+Three standard streams:stdin, stdout, stderr. Stdin and stdout both support piping, which connects one to another. \\
+We can also perform low level I/O by using a handle. Handles are wrappers around pure syscalls, and as a result do not have many protections. They can take in the flages and permission bits for open.\\
+Other low level I/O includes creat and close. \\
+However, even low level I/O may not write all the way to hardware, and may be stored in dynamic memory. \\
+Linux has many many different syscalls because it trys to have all of the other operating systems syscalls. \\
+File descriptor numbers are the numbers which describe a file, where at a lower level they relate to file descriptors, which are structs with all the data about a file. \\
+Internal file descriptor: an internal data structor which describes where a file resites, it status, and how to access it, as well as a pointer. \\
+Low level drivers are associated with particular hardware devices, and can register and unregister itself with the kernel. \\
+The device driver has device specific code which allows it to be treated equivalently to a standard internal device, or as a filesystem. Device drives have a top half, used to call standard cross device calls, and then a bottom half to serve the interrupt routine. \\
+I/O requests go from the user program to the kernel, to the halves of the device driver, and then down to the device hardware. Then it propagates back up. It passes through controllers, records changes, and transfers appropriate data to the process. \\
+Files can be viewed as communication channels: A producer and consumer of a file can be seperated in time, but basically we have a writer$\rightarrow$ channel $\rightarrow$ reader. \\
+In this model, communication across the internet works like this, where the net is in fact a larger communication channel. \\
+The internet is modeled by requests getting passed to a server, which performs the reads, then sends write responses to the user, which reads as normal. \\
+The protocol is usually with many clients and single servers, as well as many other things. \\
+Sockets: an abstraction of the network I/O queue, is a mechanism for communication over any kind of network. At a socket, we allow data transfer as if with files. Sockets have a way for processes to open, read write and close, as well as protocols to transfer data (such as hostname, IP, and port).\\
+For a client to connect to a server, we furst request a connection, then the server opens a new socket for the client's socket to transfer data through. \\
+
+\subsection{Lecture 5: Networking and Concurrency}
+For server parallelism, we want to have the parent part of the server fork off a child process, from which we listen, read and write responses, then close the connection socket, while having the parent close the connection socket (though we might not want to do this for every incoming request). This is done carefully by closing the connection socket for the parent, and the listen socket for the child, so only the important parts are preserved.\\
+Server addresses have a family (the thype of port), an address ad a port number.\\
+Clients get the server address by using a hostname search. \\
+Unix processes are defined as a system abstraction to represent running a single program, though now we can have threads within a process ( and thus parallelism), so this old single program processes are called heavyweight processes due to lack of concurrency. \\
+HW Processes have sequential execution streams, and protected resources (memory state and I/O state (file descriptors). \\
+WE can multiplex processes by storing only the PCB, and switching out the PCBs over time based on a scheduler, and only give processes their appropriate resources.\\
+The PCB contains: process state, process number, program counte , registers, memory limits, list of open files etc...\\
+A switch between processes is called a context switch, and has decent overhead, and resource contention in hyperthreading. \\
+Processes change state: New $\rightarrow$ ready $\rightarrow$ running $\rightarrow$ waiting AND terminated. \\
+Notice that terminated states wait for the parent's wait call, otherwise they are stuck in the terminated queue ( zombie states). \\
+Process scheduling: We send the PCBs around based on the scheduler, and similarly for TCBs, where we have different queues for the different priorities or needs.\\
+Threading: Threads are a sequential execution stream inside a process, while multithreading is a single program made up of different concurrent activities. Threads encapsulate concurrency ( Active ), while address spaces encapsulate protection (passive).\\
+Code, Data, and files (so memory and I/O) are both shared by the thread. However, the execution stack, which is the parameters and temporary variables, as well as CPU registers including the program counter, are stored in the TCB (thread control block), and private.\\
+The execution stack holds only temporary results. \\
+Threads are good for running multiple things at once, using threadfork(). Multiple threads will have multiple stacks in the address space, though it is a question of how to control these: protection does not exist. \\
+The important thread commands are fork, yield, join (which is like wait), and exit.\\
+An operating system is essentially: Loop: \{runthread(), choosenextthread, savestateofCPU, Load state of CPU\}\\
+An important use case for threads is to perform blocking on I/O. Here it is favorable to use a thread which yields the CPU, until the next value is ready. \\
+We run new threads by picking a thread, then switching, the performing a cleanup. Upon a yield, the kernel pushes onto its stack a yield, runnewthread and switch (always), and upon reentry we work back up this stack until we return to where we started. \\
+Switching is hard, and we can get very problematic results if we have an overly complicated switch which failed at some point. Switch is often also written in assembly. \\
+Switching depends on the cache size, and context switches cost 10-100 ms, though must faster in Linux. Thread switching is very fast , on the order of 100 ns. \\
+
+\subsection{Lecture 6: Concurrency and Synchronization}
+The thread abstraction is that all of the threads are running under a different processor, while reality is that there is a very limited number of processors. \\
+Blocking on I/O causes a thread to run a system call, where we switch to a new thread and wait, because reading from disc takes a long time.\\
+External events cause threads to give up the processor (not I/O, not wait, not yield), and these are characterized by the timerinterrupt, which goes off every few milliseconds. This is hardware invoked and chooses based on the scheduler. \\
+The Timerinterrupt will follow the same three step process as before, though the initial interrupt handler performs some housekeeping as opposed to servicing the I/O/ doing something else. \\
+ThreadFork is a user-procedure which is heavily checked and then allocates the stack and TCP so that it will seem as though the thread has been running for a while. This is done with a ThreadRood stub, which is just an illusion.\\
+Threadroot follows the order of doing housekeeping, then entering user mode, calling the function pointer and finishing the thread.  Mostly the housekeeping is startup statistics. \\
+When we call the threadfinish, we go to another thread (not the one that we started with). \\
+Some multithreaded programs include embedded systems, OS kernels, Database servers, Network servers, parallel programming. However, some multiprocessors and uniprogrammed so it seems like there is just one giant processor. \\
+In a client and web server, there may be multiple threads to handle each of the get requests, and the server might fork off threads to handle each of the gets, so there may be many threads on both sides. \\
+In the kernel, to switch between processes, we have a high overhead because changing the memory and I/O state are high cost in switching. Additionally, creation of a new process is high, and sharing overhead is high, though protection is pretty good.\\
+This is compared with threads, where there is a low overhead and thread creation, though no memory/ I/O protection. \\
+Kernels also have threads, kernel-mode threads, which are directly supported by the kernel, and can run and block independently. Kernel threads are expensive because to schedule we must switch between kernel and user mode, so the model of having one kernel thread for each user thread is expensive. However, if we let the user program schedule its own threads, this is cheaper, but then we only have one underlying kernel thread, so blocking from the kernel blocks all the user threads of that process. Thus we us a many to many user to kernel threads.\\
+Different programs use different thread models, which are useful in different cases: We can have single threaded processes where the library control the thread switches, or we can have green threads which allow user thread muxing, or scheduler activation which give processors user-level libraries but system calls to I/O are blocks, or we have where the kernel does the context switching with kernel threads.\\
+Multiprocessing is with multiple CPUs, multithreading is with multiple threads per process, and multiprogramming is multiple processes. Concurrent means that we have some scheduler in any order --so we need to take care of any order of execution.\\
+Interrupts are performed with interrupt vectors which store jump addresses so that we go to a generic handler which calls the appropriate interrupt handler. This goes to the appropriate pintos interrupt handler which changes the appropriate things in the kernel and resumes some other thread. \\
+
+\subsection{Lecture 7: Synchronization}
+Testing and understanding threads: If we cause all our threads to be independent, then we can finish this easily. However, if we have cooperating threads then we have non-deterministic, non-reproducible results, but we want to have both.\\
+Programs are not independent at all, but we assume for ourselves that they are, relying on reproduciblity. However, we also like cooperation because we can share resources, we can speedup our overall system by overlapping I/O with computation, and allowing multiprocessors, and we can make the programs we write modular per thread. \\
+We can build a threaded web server, where we look at a single process and try to recieve connections. If we just try one connector, then we could be hung up multiplexing (though we can use event driven structure). If we create new processes, the overhead will be expensive, but if we just use threads, we can work well (given no ddos). \\
+We have the best system by having a waiting queue and a pool of threads to put an upper limit, otherwise forking and useing one of the threads in the pool. \\ 
+When using one processor, we can get hung up doing disk operations, or other I/O, and that will hang everything up. We can fix this by having a while loop to perform only short parts of each step in a large switch statement (event driven), but this becomes complicated quickly. \\
+If we use threads, however, then one thread might create bad results, but only sometimes, based on the order of computation. \\
+To protect against this, we perform atomic operations, which is an operation that always run to completion or does not run at all (indivisible). Memory references and assignment are atomic (though larger load and store will not be). \\
+Design must be careful, because debugging is exceeding hard. Such cases are the therac, and the space shuttle, both of which were very costly \\
+\begin{enumerate}
+	\item Synchronization: use atomic operations to ensure cooperation between threads
+    \item Mututal exclusion: ensure that for some sections, one one thread does a particular thing at a time
+    \item Critical section: Only one thread can excute this section at a time, and only one thread will get into a segment of code.
+    \item Lock: prevents someone from doing something (with atomic lock and unlock)
+\end{enumerate}
+We can come up with unfortunate bugs, where we look for a lock but in between we context switch. \\
+We can have personal ``notes'' to prevent the problem of getting in halfway of checking for the locking mechanism, but then we can get very unusual starvation situations, because both left a note and sees the other note.\\
+We can also have the threads perform different code, where one busy waits for the other note to disappear, but while this has no locks, this does have a very bad practice solution. \\
+Locks have two functions: aquire and release, where the lock aquire waits until the lock is free, and release unlocks and wakes people up. \\
+Locks can be implemented using the atomic load and store, but this is complex. All synchronization involves waiting (though we sleep). \\
+Hardware locks are hard to use because it requires knowledge of the operation system sleep procedures. Similarly, we do not want to have locks disable interrupts, because then we have only one possible lock, and we may get stuck.\\
+Instead, we implement locks with only a limited amount of enabling and disabling interrupts, only for the section where we are checking anything. If we go to sleep, we reenable interrupts after going to sleep. The enabling and disabling of interrupts is the critical section of the code. (Inside the lock code, there is no good time to reenable interrupts, so we do that part inside the context switch code)\\
+If we do not use disabling and enable interrupts, then we can use atomic instuction sequences to perform our locking mechanisms, which is better because it also works on multiprocessors. \\
+Some of the single instructions are:
+\begin{enumerate}
+	\item test and set, which checks the result and sets it to one
+    \item swap, which switches an address with a register
+    \item compare and swap, which performs a comparison, and if it is the same, then reassigns, otherwise, it returns a failure
+    \item load linked and store conditional, which loads a value, and trys to store, but if it fails, then it branches and loops
+\end{enumerate}
+Using these, we can implement locks, though using just a while loop with test and set creates a busy waiting scenario. We do not want to perform busy waiting because it takes a long time (by not sending the processor to the needed part of code, and it is vulnerable to priority inversion, where the busy waiting thread has higher priority, and so keeps waiting.\\
+We can, however, use a test and set lock which has some busy waiting but not as much, by creating a guard variable. \\
+\subsection{Lecture 8: Semaphores and Locks}
+Recall that we can implement locks by disabling interrupts while setting up our lock, and then reenabling them after we are able to get the lock. This means that if we go to sleep while trying to aquire a lock, we will sleep with interrupts off. However, because of race conditions there is no good place to reenable interrupts. Instead, we reenable on context switches (code in the scheduler). \\
+The main problems with disablong interrupts is that we have to hide the implementation from users, and it is not resistant to multiprocessors. \\
+We have other higher level primitives than locks: Semaphores. \\
+A semaphore is strictly more powerful than a lock, and the name is based off of railway lines. Semaphores have P()--down and V()--up operations. They have a value which cannot go below zero, and they know who is waiting for them. V operations signal a sleeper to wake up, and P operations decrement the semaphore value by 1, sleeping if it is zero. \\
+Semaphores allow mutual exclusion if their initial value is 1, since then we will sleep upon trying to enter (although if we initially V() many times, this will not go as well). Semaphores can also contrain scheduling, by setting their initial value to 0, which will cause people to sleep until another thread performs a V. \\
+One general model where we use semaphores is a bounded buffer, where the producer puts items into a shared buffer, and the consumer takes them out. But we don't want both accessing at the same time, we want consumers to wait for the producer if there are no items in the buffer, we want the producer to wait until there are no buffers before filling, and we only want one item in the buffer at once. \\
+To implement a shared buffer, we use three semaphores (one for the consumer, one for the producer, and one for the mutual exclusion. \\
+We need to check for the space and isitem constraints first, before trying to take the mutex, because otherwise we can end up with deadlock. \\
+Rather than use semaphores for everything, we instead create Monitors, which are the combination of a lock and a condition variable. The condition variables control access and the waiting threads, while the lock controls mutual exclusion.\\
+Monitors give the illusion that we are holding the lock when we go to sleep (though we never want to actually hold the lock). \\
+Condition variables have three operations: Wait(lock), which waits until a lock is available to aquire (atomically releasing the lock), signal, which wakes one waiter, and broadcast, which wakes up all the waiters.\\
+The monitor general form is to keep checking for the shared data constraint, and wait if it is not ready (loop on the constraint, so even if we get the lock, we still may sleep. \\
+Scheduling: We assume on program per user, one thread per program and independent programs in the scheduler, and we give CPU time to optimize some desired parameter. \\
+Parameters: MInimize response time, Maximize throughput, fairness. \\
+FCFS scheduling: The first in runs until it is done. \\
+Convoy effect: short processes stuck behind long processes on average. \\
+Round robin: Every processes gets at most a small fixed amount of CPU time. \\
+no process waits more than (n-1)q time steps. \\
+The performance is good for large q relative to the context switch. Bad for large job. \\
+Nowadays: time slice 10ms-100ms, .1-1 ms overhead. \\
+Round robin needs to share cache state, and the total time for Round robin can be very long.\\
+The assumption better schedulers make is that the program typically uses the CPU for a short period, waits for I/O for a long time, then waits against. \\
+Thus we can use multi-level feedback scheduling: multiple queues, each with a different priority and a different scheduling algorithm. We adjust each priority based on how often it timeouts.
+\subsection{Lecture 9: Read/write}
+The reader-writer problem: Shared database, where readers access when there are no writers, and writer access if there are no readers. They are blocked by state variables. \\
+Reader: Wait until no writers, access, checkout and wake up writers if necessary. \\
+Writer: wait until no more readers or writers, Access the database, and check out by waking up waiting readers or writers. \\
+State variables: no. Active readers, waiting readers, active writers and waiting writers, oktoread, oktowrite\\
+Reader process:\\
+1. \tab Readers attempt to aquire the system lock.\\ 
+2. \tab If they get it, then they wait on the lock until there are no writers (active or waiting. When they enter, they release the lock. \\
+3. \tab They exit by acquiring the lock, changing the appropriate state variables, and if necessary signaling. \\
+Writer process: \\
+1. \tab writers attempt to acquire the lock \\
+2. \tab they loop, checking for both active readers and writers, and wait on the lock\\
+3. \tab They release the lock and start writing. \\
+4. \tab Writers checkout by taking the lock, waking up a writer if there are any waiting, otherwise waking up all of the readers (broadcast).\\
+This format of readers and writers favors the writers, so readers can starve if there are many writers (which signal other writers first).\\
+Monitors from semaphores: there is not a simple solution, since P and V operations are not restricted, and we can often break our monitor by using V many times. Also, constructing complicated checking systems lets in race conditions. \\
+The basic monitor: \\
+lock\\
+while(condition to wait) condition variable waits\\
+unlock\\
+do work \\
+lock\\
+condvar signal\\
+unlock\\
+For synchronization, we must remember all the code paths out of a critical section in C, since there may be jumps with pop the stack before releasing locks, leaving them permanently acquired. \\
+Higher level OOP languages often have built in locks, or support exceptions, but exceptions must be careful to release the lock first before catching the exception. \\
+In Java, every object has a built in lock, a single condition variable, and synchronized statements to work even with exceptions. \\
+Locks can also be implemented by disabling interrupts, though only in the kernel. \\
+This basically works by disabling all the interrupts, then running the code of moving threads on and off the ready queue atomically, since we cannot be interrupted. \\
+\subsection{Lecture 10: Advanced Scheduling}
+We follow the old assumptions: One program per user, one thread per program and independent programs. \\
+The model that we assume is that programs alternate between bursts of CPU and stretches of I/O. We do not want to interrupt a thread before it completes a CPU burst. \\
+The scheduling criteria (again) are: MRT, MT, Fairness (loosely defined). \\
+First come first serve scheduling is the simplest, and has the largest range of best and worst case scenarios. Round robin is another simple scheduling algorithm, which is similar to FCFS, and tends to do moderately in between depending on the time slice. \\
+Round robin and FCFS have the same end time, and tend to affect long processes the least. \\
+Priority Scheduling: We always execute high priority jobs to completion, and we have queues for each of our priorities (which might be round robin). \\
+Problems: Starvation and deadlock (priority inversion). \\
+We can solve these with dynamic priorities (adjust the base level priorities, have heuristics, lock, and adjust for burst behavior.\\
+Fairness: Priority schedulers are not necessarily fair, since long running jobs rarely get CPU --typically we trade off fairness for average response time. \\
+Fairness: each queue some fraction of the CPU, increase the priority of jobs that do not get service. \\
+Lottery Scheduling: We give each job some number of lottery tickets, which roughly imitate priority. We pick a random ticket and give the job the CPU. Thus we on average give running time based on the number of tickets. \\
+Evaluate a scheduling algorithm: Deterministic modeling: compute each algorithm on the same workload. Queueing models: model mathematically with stochastic arrivals, Simulation: Run the actual algorithms. \\
+If we have a mixture of interactive and high throughput apps: find out how the schedule best, recognize one from the other. \\
+Assumptions: if you sleep a lot you are interactive, and if you compute a lot you are high throughput. But these have problems with sleep and compute a lot, or run unter all circumstances. \\
+SJF: shortest job first (see the future), SRTF: Shortest time remaining first: preemptive version of SJF (we kick jobs off) also called SRTCF. \\
+SRTF does the best for minimizing wakeups and also getting the best use of CPU. It can still lead to starvation, and nobody knows how long the program will take (especially not user). \\
+Adaptive: Change the policy based on past behavior: We try to measure using kalman filters what state a process might be in, or use an exponential averaging function to guess the usage. \\
+Multi-level feedback scheduling: We have multiple queues of differing priority, so each queue has its own scheduling algorithm: Jobs begin at the highest priority, but whenever they get timed out, they drop a level, while if they yield, they rise. \\
+For MLFS, we can have different scheduling within a queue, such as fixed priority or time slices. However, users can maliciously use spurious I/O to confuse our scheduler. \\
+Linux O(1) scheduler: We have 140 priorities, and set the 40 user priorities based on nice values. The priority queues active and expired would run and swap when expired. There was a heuristic for the timeslice granularity, as well as the user-task priority. However, it was too hard to figure out. \\
+Linux completely fair scheduler: The CFS just makes sure that every process would get in total 1/N of the processor, so if they yield, then they get more time: Take the real execution time, and give each process a real time divided by the weight: each process runs with quantum: $(W_p/\sum W_i)\times T_L$, where $T_L$ is the targeted latency: period of time after which all process have received some time to run. \\
+
+\subsection{Lecture 11: Deadlock and Address Translation}
+Real time Scheduling: Job arrivals in real time, We want to be both efficient and predictable. \\
+Hard real-time: Here we try to meet all of the deadlines. Earliest Deadline First, Least Laxity first, Rate-monotonic scheduling, Deadlin Monotonic scheduling. \\
+Soft Real-time: WE try to meet all the deadlines with high probability. Since we might not, this is better losses are okay. \\
+Task assumptions: preemptable, independent, with deadlines and computation times. \\
+Earliest Deadline first: periodic asks with period P and computation C. We can preempt tasks, and schedule the one with the closest deadline when it arrives. \\
+We have the exact schedulability test: $\SIN (\frac{C_i}{D_i})\leq 1$. Where when satisfied we can schedule with EDF. \\
+Choosing hardware over scheduling is based on whether we are in the nonlinear section of the utilization-response time graph. \\
+Scheduling is not a remedy for lack of resources. \\
+Starvation and deadlock: Starvation is where a thread waits indefinitely, while deadlock is circular waiting for resources. Deadlock is a form of starvation.\\
+Deadlock is non-deterministic. \\
+Two canonical examples:\\
+1.\tab trains with turns: we have four trains trying to turn right into another in a rectangle, which we can fix by forcing tracks to go in a certain order. \\
+Dining lawyers: we have five chopsticks and  five lawyers, which we protect against by not letting the last chopstick be taken. \\
+Requirements for deadlock (necessary and sufficient):
+\begin{enumerate}
+	\item Mutual Exclusion: only one thread at a time with a resource
+    \item Hold and wait: The thread holding at least one resource is waiting to acquire addition resources held by other threads
+    \item No preemption: Resources are only released voluntarily by the thread
+    \item Circular waiting: there is a set where the last waits for the first
+\end{enumerate}
+Resource Allocation graph: We have circular nodes as threads, and rectangular nodes as resource types, containing individual resources as dots. Arrows from a thread denote a thread wanting a resource, and arrows to a thread denote resources owned by a thread. A deadlock is a cycle which has equal in arrows to our arrows for each resource. \\
+Handling deadlock: 
+\begin{enumerate}
+	\item Allow deadlock and recover, either by preemption or something else
+    \item Ensure that deadlock cannot be reached, using some resource ordering scheme
+    \item Ignore and reboot if nothing ends up happening
+\end{enumerate}
+Deadlock detection: Look for loops in the resource allocation graph, or simulate the graph and see if tasks can terminate on their own. \\
+Stopping deadlock: Terminate thread, preempt resources without killing the thread, roll back actions of deadlocked thread, infinite resources, no resources shared, no waiting, all resources requested at the beginning, control the order that resources are requested. \\
+Resource need solution: have the maximum resource needs of a thread in advance, and only allow it to proceed if: available - requested $\geq$ max remaining that might be needed by any thread
+Banker solution for deadlock: Allocate the resources dynamically (pretend to allocate and run the deadlock detection, granting if there is no deadlock. Keep the system in a safe state where we follow a no-deadlock order, allow the sum of resource needs to be greater than the total. \\
+Virtualizing resources: hide the multiplexing of CPU, memory and disk hidden from the processes. \\
+\subsection{Lecture 12: Address Translation}
+Memory multiplexing:
+\begin{enumerate}
+	\item Controlled overlap: Different thread do not collide in physical memory, unless we want them to
+    \item Translation: how to go from virtual addressing to physical addressing
+    \item Protection: prevent memory of different processes from being accessed
+\end{enumerate}
+Instructions to data: take our processor view of memory, convert jumps to physical addresses, and store in physical memory. \\
+Processing: Compile, link/load, execution. Addresses depend on hardware and operating system. \\
+Dynamic Libraries: Linking is saved until execution, where a stub is used to locate the library routine and replaces with the address (as opposed to a linking time). \\
+Base and bound: We add a base, and we give an error if we exceed the bound. \\
+Problems with base and bound: 
+\begin{enumerate}
+	\item Fragmentation (empty space between differently sized process memory)
+    \item No support for sparse address space
+    \item Hard to share
+\end{enumerate}
+Flexible segmentation: have the code, data, stack and heap in different memory segments in physical memory and point to them.\\
+Implementation: top few bits are the segment number, which goes to a segment table and is replaced by a base and bound. The last few bits are the offset, which can go straight through if they do not exceed the limit. \\
+Segmentation issues: Cirtual address space has gaps, we might want to address out of the valid range for stank and heap (we can), we need protection for the segment table (read-only) except for data and stack, need to swap out the segment table (stored on the CPU). Variable size chunks, moving processes, limited disk swap are all drawbacks.\\
+External fragmentation: free gaps between allocated chunks\\
+Internal fragmentation: do not need all memory within chunks. \\
+Address translation table: segments are allocated into pages (1k-16k) which are mapped by a translation table to the physical page number. The offset passes through. Each process gets one page table. \\
+Virtual addresses top bits go to a page table, which converts the top bits (if valid) to the physical page. the offset passes through. \\
+Sharing is also simple, since we just need to have two page table entries map to the same physical memory. \\
+The problem with a single page table is that if we have gaps, we expand the size of the page table (null entries). Instead, we can use a multi-level page table, where the first few bits are converted to a page table which takes in the next few bits and then gets a physical page number. \\
+\subsection{Lecture 12: Address Translation}
+In a multi-level page table, we will always need all of the first level table, and usually the first level will be in memory or cached, but the second level page tables may be on disk or not exist at all. \\
+Page table entries have many different helper bits, which are the lowest bits (the highest bits are the PPN). There include the P/V bit, R/W, user bit, caching bits (Page write transparent and page cache disabled), accessed bit, dirty bit, L (directory) bit, and a few extra Operating system bits. \\
+Page table entries can be invalidated to show that we mihgt need to find the real location in memory, the region is invalid, or we need to perform some operation before applying.\\
+When forking, we copy the parents Page tables and set Write invalid. \\
+When zero-filling, we invalidate and zero fill when we begin accessing. \\
+For two level paging, the first level converts segments to page tables (using the first k bits), and the second level converts a location in the stack to a second page table (relating to the physical page, using the next few bits). The last bits are offset in a page. \\
+Multi level translation: \\
++ Only allocate as much as we need. \\
++ Easy memory allocation. \\
++ Easy sharing. \\
+- Only one pointer per page. \\
+- Contiguous page tables\\
+- many lookups per reference\\
+Systems with many bits (48 or 64 bit systems) will have many levels of page tables. \\
+Inverted Page table: We send our virtual page numbers into a hash, which hashes directly to a physical page number in hardware. \\
+IPT is good because size independent of virtual address space. \\
+Bad because hash function is in hardware and complex. \\
+IPT example: concatenate pid and Virtual page number. Hash to a bucket corresponding to a location in physical memory. \\
+Address Translation:
+\begin{enumerate}
+	\item Segmentation: Fast context switch using CPU, but External fragmentation
+    \item Paging: fast allocation and no external fragmentation, but large table sizes and internal fragmentation.
+    \item Paged segmentation (multi-level paging): Table size is proportional to number of pages in VM, easy allocation but many memory accesses to reach page.
+    \item Inverted Page Table: Table size is proportional to number of pages in physical memory, but has a complex hash function
+\end{enumerate}
+The general structure: CPU sends Virtual addresses into the MMU which sends physical addresses to physical memory. \\
+We can implement the MMU in hardware where we take the page table pointer and traverse in hardware, or we can implement in software, which is more flexible, but always Faults. \\
+User and kernel mode: \\
+Creating a new user in the kernel: Allocate address space, read of disk, allocate and initialize translation, run program. Switches by saving and restoring registers and translation table pointer. \\
+Exceptions help the user get to the kernel:\\ Synchronous exceptions are traps: Page faults. \\
+Asynchronous exceptions are Interrupts. Only interrupts can be disabled. \\
+The software can perform protection by using strong typing and controlling programming to a virtual machine (like Java), or we can have a pre-defined compiler which protects against writing outside of bounds. \\
+Caching: A repository where copies are accessed fast. Only good if there is some temporal locality. \\
+hit rate x hit time + miss rate x miss time. \\
+We need caches because we use them for the TLB to solve our lookup problems, which enables other caching to be fast. \\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Topical Notes}
+\end{document}
+
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 1
+%----------------------------------------------------------------------------------------
